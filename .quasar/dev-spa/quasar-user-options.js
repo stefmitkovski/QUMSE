@@ -11,9 +11,11 @@
  * Boot files are your "main.js"
  **/
 
+import iconSet from 'quasar/icon-set/fontawesome-v6.js'
 
 
 
 
-export default { config: {} }
+
+export default { config: {},iconSet }
 
