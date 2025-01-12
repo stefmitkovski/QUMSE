@@ -303,7 +303,7 @@ export default defineComponent({
             type: "checkbox",
             // inline: true
             model: this.selectedFields,
-            items: this.columns.map((item) => ({
+            items: this.columns.slice(1).map((item) => ({
               label: item.label,
               value: item.field,
             })),
