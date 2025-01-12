@@ -15,7 +15,9 @@ import iconSet from 'quasar/icon-set/fontawesome-v6.js'
 
 
 
+import {Dialog,SessionStorage,Loading} from 'quasar'
 
 
-export default { config: {},iconSet }
+
+export default { config: {},iconSet,plugins: {Dialog,SessionStorage,Loading} }
 

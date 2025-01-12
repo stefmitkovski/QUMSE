@@ -94,7 +94,9 @@ export default defineConfig((ctx) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
     framework: {
-      config: {},
+      config: {
+        // loading: /* look at QuasarConfOptions from the API card */
+      },
 
       iconSet: 'fontawesome-v6',
       // iconSet: 'material-icons', // Quasar icon set
@@ -108,7 +110,7 @@ export default defineConfig((ctx) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: ['Dialog','SessionStorage','Loading']
     },
 
     // animations: 'all', // --- includes all animations
