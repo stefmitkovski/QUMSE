@@ -10,7 +10,7 @@
     >
     </q-drawer>
 
-    <LastTradedShares />
+    <MainTradedShares />
 
     <q-page-container>
       <router-view />
@@ -21,14 +21,14 @@
 <script>
 import { defineComponent } from "vue";
 import MainHeader from "src/components/MainHeader.vue";
-import LastTradedShares from "src/components/LastTradedShares.vue";
+import MainTradedShares from "src/components/MainTradedShares.vue";
 
 export default defineComponent({
   name: "MainLayout",
 
   components: {
     MainHeader,
-    LastTradedShares,
+    MainTradedShares,
   },
 
   data() {
