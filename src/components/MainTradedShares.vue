@@ -1,4 +1,5 @@
 <template>
+<div class="row">
   <q-page-container class="col-md-10 offset-md-1">
     <q-card flat bordered elevated class="mobile-sticky-card">
       <div class="column q-pa-sm">
@@ -40,10 +41,10 @@
             color="primary"
             icon="fa-solid fa-list-check"
             @click="selectFields"
-          />
-
-          <div class="col">
-            <q-input
+            />
+            
+            <div class="col">
+              <q-input
               outlined
               dense
               v-model="searchReportString"
@@ -112,8 +113,8 @@
               {{ isNaN(item.change) ? 0 : item.change }}
             </td>
             <td
-              v-show="selectedFields.includes('last_price')"
-              class="text-center"
+            v-show="selectedFields.includes('last_price')"
+            class="text-center"
             >
               {{ isNaN(item.last_price) ? 0 : item.last_price }}
             </td>
@@ -154,6 +155,7 @@
       </q-virtual-scroll>
     </q-card>
   </q-page-container>
+</div>
 </template>
 
 <script>
@@ -161,7 +163,7 @@ import httpUtils from "src/assets/js/httpUtils";
 import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: "LastTradedShares",
+  name: "MainTradedShares",
   props: {},
 
   data() {

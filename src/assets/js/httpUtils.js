@@ -35,6 +35,17 @@ const httpUtils = {
       }catch(error){
         console.error('Error fetching data:', error);
       }
+    },
+
+    async getWeeklyReport(){
+      try{
+        const path = URL+"/api/reports/week_report"
+        const options = {method: 'GET', url:path}
+        const {data} = await axios.request(options)
+        return JSON.parse(data)
+      }catch(error){
+        console.error('Error fetching data:', error);
+      }
     }
   };
 

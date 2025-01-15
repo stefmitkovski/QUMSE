@@ -1,5 +1,6 @@
 <template>
 <!-- Header for Desktop -->
+<div class="row">
 <q-header class="col-md-10 offset-md-1" v-if="$q.platform.is.desktop" elevated>
       <q-toolbar class="q-my-sm">
         <q-toolbar-title class="text-center">
@@ -34,6 +35,7 @@
         <q-btn flat class="absolute-right" icon="fa-solid fa-magnifying-glass" color="white"  @click="toggleSearchBar"/>
       </q-toolbar>
     </q-header> 
+</div>
 </template>
   
 <script>
