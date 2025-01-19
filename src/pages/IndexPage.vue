@@ -1,5 +1,6 @@
 <template>
   <q-page>
+    <MainTradedShares />
     <div class="row">
       <div class="col-md-10 offset-md-1">
         <div class="row justify-between q-gutter-md">
@@ -26,12 +27,14 @@
 import { defineComponent } from "vue";
 import MostShares from "src/components/MostShares.vue";
 import httpUtils from "src/assets/js/httpUtils";
+import MainTradedShares from "src/components/MainTradedShares.vue";
 
 export default defineComponent({
   name: "IndexPage",
 
   components: {
     MostShares,
+    MainTradedShares
   },
 
   data() {
