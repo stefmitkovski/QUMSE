@@ -1,69 +1,77 @@
 <template>
-<!-- Header for Desktop -->
-<div class="row">
-<q-header class="col-md-10 offset-md-1" v-if="$q.platform.is.desktop" elevated>
-      <q-toolbar class="q-my-sm">
-        <q-toolbar-title class="text-center">
-          QUMSE
-        </q-toolbar-title>
+  <!-- Header for Desktop -->
+  <div class="row">
+    <q-header
+      class="col-md-10 offset-md-1"
+      v-if="$q.platform.is.desktop"
+      elevated
+    >
+      <q-toolbar>
+        <q-toolbar-title shrink>QUMSE</q-toolbar-title>
 
-        <q-input class="absolute-right q-px-sm" style="margin-top: -3px;" color="white" outlined v-model="text">
-          <template v-slot:append>
-            <i class="fa-solid fa-magnifying-glass" style="color: white;"/>
-          </template>
-        </q-input>
+        <div class="q-mx-auto">
+          <q-tabs v-model="tab" active-color="secondary" shrink>
+            <q-route-tab name="home" to="/" label="Home" class="q-mx-sm" />
+            <q-route-tab
+              name="analyse"
+              to="/analyse"
+              label="Analyse"
+              class="q-mx-sm"
+            />
+            <q-route-tab
+              name="calculator"
+              to="/calculator"
+              label="Calculator"
+              class="q-mx-sm"
+            />
+          </q-tabs>
+        </div>
       </q-toolbar>
     </q-header>
 
-    <!-- Header for Mobile -->
-    <q-header class="col-md-10 offset-md-1" v-if="$q.platform.is.mobile" elevated>
-      <q-toolbar class="q-my-sm">
-        <q-btn 
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-        
-        <q-input v-show="showSearchBar" class="q-px-sm" style="margin-top: -3px;" color="white" outlined v-model="text" />
-        <q-toolbar-title v-show="!showSearchBar" class="absolute-center">
-          QUMSE
-        </q-toolbar-title>
-
-        <q-btn flat class="absolute-right" icon="fa-solid fa-magnifying-glass" color="white"  @click="toggleSearchBar"/>
+    <q-header v-if="$q.platform.is.mobile" elevated>
+      <q-toolbar>
+        <q-toolbar-title align="center"> QUMSE </q-toolbar-title>
       </q-toolbar>
-    </q-header> 
-</div>
+
+      <q-tabs active-color="secondary" align="center">
+        <q-route-tab name="home" to="/" label="Home" />
+        <q-route-tab name="analyse" to="/analyse" label="Analyse" />
+        <q-route-tab name="calculator" to="/calculator" label="Calculator" />
+      </q-tabs>
+    </q-header>
+  </div>
 </template>
-  
+
 <script>
-import { Platform } from 'quasar';
-import { defineComponent } from 'vue'
+import { Platform } from "quasar";
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  name: 'MainHeader',
+  name: "MainHeader",
   props: {},
 
-  data(){
+  data() {
     return {
       leftDrawerOpen: false,
       showSearchBar: false,
-    }
+      tab: this.$route.name,
+    };
   },
   methods: {
-    toggleLeftDrawer () {
-        this.leftDrawerOpen = !this.leftDrawerOpen
-      },
-    toggleSearchBar(){
-      if(Platform.is.mobile){
+    toggleLeftDrawer() {
+      this.leftDrawerOpen = !this.leftDrawerOpen;
+    },
+    toggleSearchBar() {
+      if (Platform.is.mobile) {
         this.showSearchBar = !this.showSearchBar;
       }
-    }
-  }
+    },
+  },
+  watch: {
+    $route(to) {
+      this.tab = to.name;
+    },
+  },
 });
-
-
 </script>
-  

@@ -369,4 +369,7 @@ export default defineComponent({
   /* z-index: 10; */
   overflow-x: auto;
 }
+.q-page-container{
+  padding-top: 45px !important;
+}
 </style>

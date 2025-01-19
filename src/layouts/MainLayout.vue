@@ -2,14 +2,13 @@
   <q-layout view="lHh Lpr lFf">
     <MainHeader />
 
-    <q-drawer
+    <!-- <q-drawer
       v-if="$q.platform.is.mobile"
       v-model="leftDrawerOpen"
       show-if-above
       bordered
     >
-    </q-drawer>
-
+    </q-drawer> -->
 
     <q-page-container>
       <router-view />
