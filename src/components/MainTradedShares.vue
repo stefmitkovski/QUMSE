@@ -1,164 +1,180 @@
 <template>
-<div class="row">
-  <q-page-container class="col-md-10 offset-md-1">
-    <q-card flat bordered elevated class="mobile-sticky-card">
-      <div class="column q-pa-sm">
-        <div class="row justify-center q-my-sm">
-          <div class="text-center">
-            <b>Shares Traded on </b> ({{ date }})
-            <q-btn icon="event" flat dense color="primary">
-              <q-popup-proxy
-                @before-show="updateDate"
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
-                <q-date
-                  v-model="currentReportDate"
-                  :options="this.available_reports"
+  <div class="row">
+    <q-page-container class="col-md-10 offset-md-1">
+      <q-card flat bordered elevated class="mobile-sticky-card">
+        <div class="column q-pa-sm">
+          <div class="row justify-center q-my-sm">
+            <div class="text-center">
+              <b>Shares Traded on </b> ({{ date }})
+              <q-btn icon="event" flat dense color="primary">
+                <q-popup-proxy
+                  @before-show="updateDate"
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
                 >
-                  <div class="row items-center justify-end q-gutter-sm">
-                    <q-btn label="Cancel" color="primary" flat v-close-popup />
-                    <q-btn
-                      label="OK"
-                      color="primary"
-                      flat
-                      dense
-                      @click="chosenReportDate"
-                      v-close-popup
-                    />
-                  </div>
-                </q-date>
-              </q-popup-proxy>
-            </q-btn>
+                  <q-date
+                    v-model="currentReportDate"
+                    :options="this.available_reports"
+                  >
+                    <div class="row items-center justify-end q-gutter-sm">
+                      <q-btn
+                        label="Cancel"
+                        color="primary"
+                        flat
+                        v-close-popup
+                      />
+                      <q-btn
+                        label="OK"
+                        color="primary"
+                        flat
+                        dense
+                        @click="chosenReportDate"
+                        v-close-popup
+                      />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-btn>
+            </div>
           </div>
-        </div>
 
-        <div class="row items-center">
-          <q-btn
-            class="col-auto"
-            flat
-            color="primary"
-            icon="fa-solid fa-list-check"
-            @click="selectFields"
+          <div class="row items-center">
+            <q-btn
+              class="col-auto"
+              flat
+              color="primary"
+              icon="fa-solid fa-list-check"
+              @click="selectFields"
             />
-            
+
             <div class="col">
               <q-input
-              outlined
-              dense
-              v-model="searchReportString"
-              placeholder="Search by symbol..."
-              @update:model-value="searchReport"
-              hide-underline
-            >
-              <template v-slot:append>
-                <q-btn
-                  v-if="searchReportString.length === 0"
-                  flat
-                  round
-                  dense
-                  color="primary"
-                  icon="search"
-                  @click="searchReport"
-                />
-                <q-btn
-                  v-else
-                  flat
-                  round
-                  dense
-                  color="primary"
-                  icon="close"
-                  @click="clearSearch"
-                />
-              </template>
-            </q-input>
+                outlined
+                dense
+                v-model="searchReportString"
+                placeholder="Search by symbol..."
+                @update:model-value="searchReport"
+                hide-underline
+              >
+                <template v-slot:append>
+                  <q-btn
+                    v-if="searchReportString.length === 0"
+                    flat
+                    round
+                    dense
+                    color="primary"
+                    icon="search"
+                    @click="searchReport"
+                  />
+                  <q-btn
+                    v-else
+                    flat
+                    round
+                    dense
+                    color="primary"
+                    icon="close"
+                    @click="clearSearch"
+                  />
+                </template>
+              </q-input>
+            </div>
           </div>
         </div>
-      </div>
-    </q-card>
-    <q-card flat bordered elevated class="q-pa-md">
-      <q-virtual-scroll
-        type="table"
-        style="max-height: 50vh"
-        :virtual-scroll-item-size="48"
-        :virtual-scroll-sticky-size-start="48"
-        :virtual-scroll-sticky-size-end="32"
-        :items="rows"
-      >
-        <template v-slot:before>
-          <thead class="thead-sticky sticky">
+      </q-card>
+      <q-card flat bordered elevated class="q-pa-md">
+        <q-virtual-scroll
+          type="table"
+          style="max-height: 50vh"
+          :virtual-scroll-item-size="48"
+          :virtual-scroll-sticky-size-start="48"
+          :virtual-scroll-sticky-size-end="32"
+          :items="rows"
+        >
+          <template v-slot:before>
+            <thead class="thead-sticky sticky">
+              <tr>
+                <th
+                  v-for="col in columns.filter((column) =>
+                    this.selectedFields.includes(column.field)
+                  )"
+                  :key="col.name"
+                >
+                  {{ col.name }}
+                </th>
+              </tr>
+            </thead>
+          </template>
+          <template v-slot="{ item }">
             <tr>
-              <th
-                v-for="col in columns.filter((column) =>
-                  this.selectedFields.includes(column.field)
-                )"
-                :key="col.name"
+              <td class="text-center">
+                <q-tooltip anchor="top middle" self="bottom middle">
+                  {{ item.name }}
+                </q-tooltip>
+                {{ item.symbol }}
+              </td>
+              <td
+                v-show="selectedFields.includes('average_price')"
+                class="text-center"
               >
-                {{ col.name }}
-              </th>
+                {{ isNaN(item.average_price) ? 0 : item.average_price }}
+              </td>
+              <td
+                v-show="selectedFields.includes('change')"
+                class="text-center"
+              >
+                {{ isNaN(item.change) ? 0 : item.change }}
+              </td>
+              <td
+                v-show="selectedFields.includes('last_price')"
+                class="text-center"
+              >
+                {{ isNaN(item.last_price) ? 0 : item.last_price }}
+              </td>
+              <td v-show="selectedFields.includes('max')" class="text-center">
+                {{ isNaN(item.max) ? 0 : item.max }}
+              </td>
+              <td v-show="selectedFields.includes('min')" class="text-center">
+                {{ isNaN(item.min) ? 0 : item.min }}
+              </td>
+              <td
+                v-show="selectedFields.includes('purchase_price')"
+                class="text-center"
+              >
+                {{ isNaN(item.purchase_price) ? 0 : item.purchase_price }}
+              </td>
+              <td
+                v-show="selectedFields.includes('quantity')"
+                class="text-center"
+              >
+                {{ isNaN(item.quantity) ? 0 : item.quantity }}
+              </td>
+              <td
+                v-show="selectedFields.includes('sale_price')"
+                class="text-center"
+              >
+                {{ isNaN(item.sale_price) ? 0 : item.sale_price }}
+              </td>
+              <td
+                v-show="selectedFields.includes('turnover_in_1000_den')"
+                class="text-center"
+              >
+                {{
+                  isNaN(item.turnover_in_1000_den)
+                    ? 0
+                    : item.turnover_in_1000_den
+                }}
+              </td>
             </tr>
-          </thead>
-        </template>
-        <template v-slot="{ item }">
-          <tr>
-            <td class="text-center">{{ item.symbol }}</td>
-            <td
-              v-show="selectedFields.includes('average_price')"
-              class="text-center"
-            >
-              {{ isNaN(item.average_price) ? 0 : item.average_price }}
-            </td>
-            <td v-show="selectedFields.includes('change')" class="text-center">
-              {{ isNaN(item.change) ? 0 : item.change }}
-            </td>
-            <td
-            v-show="selectedFields.includes('last_price')"
-            class="text-center"
-            >
-              {{ isNaN(item.last_price) ? 0 : item.last_price }}
-            </td>
-            <td v-show="selectedFields.includes('max')" class="text-center">
-              {{ isNaN(item.max) ? 0 : item.max }}
-            </td>
-            <td v-show="selectedFields.includes('min')" class="text-center">
-              {{ isNaN(item.min) ? 0 : item.min }}
-            </td>
-            <td
-              v-show="selectedFields.includes('purchase_price')"
-              class="text-center"
-            >
-              {{ isNaN(item.purchase_price) ? 0 : item.purchase_price }}
-            </td>
-            <td
-              v-show="selectedFields.includes('quantity')"
-              class="text-center"
-            >
-              {{ isNaN(item.quantity) ? 0 : item.quantity }}
-            </td>
-            <td
-              v-show="selectedFields.includes('sale_price')"
-              class="text-center"
-            >
-              {{ isNaN(item.sale_price) ? 0 : item.sale_price }}
-            </td>
-            <td
-              v-show="selectedFields.includes('turnover_in_1000_den')"
-              class="text-center"
-            >
-              {{
-                isNaN(item.turnover_in_1000_den) ? 0 : item.turnover_in_1000_den
-              }}
-            </td>
-          </tr>
-        </template>
-      </q-virtual-scroll>
-    </q-card>
-  </q-page-container>
-</div>
+          </template>
+        </q-virtual-scroll>
+      </q-card>
+    </q-page-container>
+  </div>
 </template>
 
 <script>
+import cyrillicToLatin from "cyrillic-romanization";
 import httpUtils from "src/assets/js/httpUtils";
 import { defineComponent } from "vue";
 
@@ -283,11 +299,14 @@ export default defineComponent({
       if (this.searchReportString.length === 0) {
         this.rows = [...this.backupRows];
       } else {
-        this.rows = this.backupRows.filter((item) =>
-          item.symbol
-            .toLowerCase()
-            .includes(this.searchReportString.toLowerCase())
-        );
+        this.rows = this.backupRows.filter((item) => {
+          const searchLower = this.searchReportString.toLowerCase();
+          return (
+            item.symbol.toLowerCase().includes(searchLower) ||
+            cyrillicToLatin(item.name.toLowerCase(), "mkd").includes(searchLower) ||
+            item.name.toLowerCase().includes(searchLower)
+          );
+        });
       }
     },
 
@@ -315,7 +334,10 @@ export default defineComponent({
         })
         .onOk((data) => {
           this.selectedFields = data;
-          this.$q.sessionStorage.setItem("selectedFields",JSON.stringify(this.selectedFields))
+          this.$q.sessionStorage.setItem(
+            "selectedFields",
+            JSON.stringify(this.selectedFields)
+          );
 
           this.columns.forEach(function (el) {
             if (!(el.value in data)) {
@@ -344,7 +366,7 @@ export default defineComponent({
       const rows = await httpUtils.getSpecificReport(this.currentReportDate);
       this.rows = rows;
       this.date = this.currentReportDate;
-      this.$q.loading.hide()
+      this.$q.loading.hide();
     },
   },
 });
@@ -369,7 +391,7 @@ export default defineComponent({
   /* z-index: 10; */
   overflow-x: auto;
 }
-.q-page-container{
+.q-page-container {
   padding-top: 45px !important;
 }
 </style>

@@ -62,8 +62,9 @@ export default defineComponent({
         "weekReport",
         JSON.stringify(this.weekReport)
       );
+      this.$q.loading.hide();
     }
-
+    
     this.mostGainsReport = this.weekReport
       .map((row) => ({
         ...row,
@@ -88,7 +89,6 @@ export default defineComponent({
       .sort((a, b) => a.change - b.change)
       .slice(0, 5);
 
-    this.$q.loading.hide();
   },
 });
 </script>

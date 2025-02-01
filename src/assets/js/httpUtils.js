@@ -11,6 +11,7 @@ const httpUtils = {
             return JSON.parse(data)
           } catch (error) {
             console.error('Error fetching data:', error);
+            return false
         }
     },
 
@@ -19,9 +20,10 @@ const httpUtils = {
         const path = URL+"/api/reports/lists"
         const options = {method: 'GET', url:path}
         const {data} = await axios.request(options)
-        return data.reports
+        return JSON.parse(data.reports)
       }catch(error){
         console.error('Error fetching data:', error);
+        return false
       }
     },
 
@@ -34,6 +36,7 @@ const httpUtils = {
         return JSON.parse(data)
       }catch(error){
         console.error('Error fetching data:', error);
+        return false
       }
     },
 
@@ -45,6 +48,19 @@ const httpUtils = {
         return JSON.parse(data)
       }catch(error){
         console.error('Error fetching data:', error);
+        return false
+      }
+    },
+
+    async getListCompanies(){
+      try{
+        const path = URL + "/api/list_companies"
+        const options = {method: 'GET', url:path}
+        const {data} = await axios.request(options)
+        return JSON.parse(data)
+      }catch(error){
+        console.error('Error fetching data:', error);
+        return false
       }
     }
   };
