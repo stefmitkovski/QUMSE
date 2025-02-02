@@ -62,7 +62,20 @@ const httpUtils = {
         console.error('Error fetching data:', error);
         return false
       }
-    }
+    },
+
+    async getDataForComapnies(symbols,from, to){
+      try{
+        const path = URL+"/api/reports/search"
+        const body = { "symbol": symbols, "from": from, "to": to}
+        const options = {method: 'POST', data: body, url:path}
+        const {data} = await axios.request(options)
+        return JSON.parse(data)
+      }catch(error){
+        console.error('Error fetching data:', error);
+        return false
+      }
+    },
   };
 
 export default httpUtils

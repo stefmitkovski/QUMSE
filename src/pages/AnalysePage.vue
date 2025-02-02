@@ -115,18 +115,64 @@
               </q-item-section>
             </q-item>
           </div>
+          <q-separator v-if="this.model.length > 0" spaced />
+          <div v-if="this.model.length > 0" class="row justify-center">
+            <div class="column q-py-md">
+              <p class="text-center">Select Date Range:</p>
+
+              <!-- Kalendar -->
+              <q-input
+                filled
+                :model-value="`${date.from} - ${date.to}`"
+                readonly
+              >
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      cover
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date v-model="date" mask="YYYY/MM/DD" range>
+                        <div class="row items-center justify-end">
+                          <q-btn
+                            v-close-popup
+                            label="Close"
+                            color="primary"
+                            flat
+                          />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+              <q-btn
+                @click="getData"
+                color="primary"
+                label="Submit"
+                :disable="
+                  this.date.from.length == 0 ||
+                  this.date.to.length == 0 ||
+                  this.selected.length == 0
+                "
+              />
+            </div>
+          </div>
         </div>
+        <apexchart
+          v-if="
+            this.selected.length > 0 &&
+            this.model.length > 0 &&
+            this.chartData != '' &&
+            this.chartData != undefined
+          "
+          type="area"
+          height="350"
+          :options="chartOptions"
+          :series="series"
+        />
       </q-card>
-      <!-- <q-card class="q-ma-md" style="max-width: 800px; width: 100%">
-        <q-card-section>
-          <apexchart
-            type="area"
-            :options="chartOptions"
-            :series="series"
-            height="350"
-          />
-        </q-card-section>
-      </q-card> -->
     </q-page-container>
   </div>
 </template>
@@ -134,10 +180,17 @@
 <script>
 import cyrillicToLatin from "cyrillic-romanization";
 import httpUtils from "src/assets/js/httpUtils";
+import Utils from "src/assets/js/Utils";
 import { defineComponent } from "vue";
+import VueApexCharts from "vue3-apexcharts";
+import { colors } from "quasar";
+const { getPaletteColor } = colors;
 
 export default defineComponent({
   name: "AnalysePage",
+  components: {
+    apexchart: VueApexCharts,
+  },
 
   data() {
     return {
@@ -149,28 +202,51 @@ export default defineComponent({
         "red",
         "pink",
         "purple",
-        "deep-purple",
         "indigo",
         "blue",
-        "light-blue",
         "cyan",
         "teal",
         "green",
-        "light-green",
         "lime",
         "yellow",
         "amber",
         "orange",
-        "deep-orange",
-        "brown",
-        "blue-grey",
       ],
+      date: { from: "", to: "" },
       showColorDialog: false, // Za dialogot za boi
       selectedColor: "", // Momentalno selektiranata boja
       selectedItem: "", // Momentalno selektiranata firma
+      chartData: "",
+      series: [],
+      chartOptions: {
+        data: {
+          series: [{}],
+          chartOptions: {
+            chart: {
+              height: 350,
+              type: "area",
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            stroke: {
+              curve: "smooth",
+            },
+            xaxis: {
+              type: "datetime",
+              categories: [],
+            },
+            tooltip: {
+              x: {
+                format: "dd/MM/yy HH:mm",
+              },
+            },
+            colors: [],
+          },
+        },
+      },
     };
   },
-
   async created() {
     if (this.$q.sessionStorage.getItem("companies")) {
       this.companies = JSON.parse(this.$q.sessionStorage.getItem("companies"));
@@ -212,15 +288,13 @@ export default defineComponent({
 
     onSelected(values) {
       const colour = this.getRandomColour();
-
       values.forEach((item) => {
         if (item.color == undefined) {
           item.color = colour;
           item.showMenu = false;
+          this.toggleCheckbox(item.value);
         }
       });
-
-      // console.log(this.model)
     },
     toggleCheckbox(val) {
       const index = this.selected.indexOf(val);
@@ -275,6 +349,43 @@ export default defineComponent({
       this.selectedColor = "";
       this.showColorDialog = false;
     },
+
+    getColors(val) {
+      const arr = [];
+
+      val.forEach((item) => {
+        const found = this.model.find((obj) => obj.value === item);
+        if (found) {
+          arr.push(getPaletteColor(found.color));
+        }
+      });
+      return arr;
+    },
+
+    async getData() {
+      const data = await httpUtils.getDataForComapnies(
+        JSON.parse(JSON.stringify(this.selected)),
+        this.date.from,
+        this.date.to
+      );
+
+      if (data) {
+        this.chartData = Utils.transformDataForChart(data);
+        this.series = this.chartData.companies.map((item, index) => ({
+          name: item,
+          data: this.chartData.data[index],
+        }));
+        const colors = this.getColors(this.chartData.companies);
+        this.chartOptions = {
+          ...this.chartOptions,
+          xaxis: {
+            categories: JSON.parse(JSON.stringify(this.chartData.dates)),
+          },
+          series: this.series,
+          colors: colors
+        };
+      }
+    },
   },
 });
 </script>
@@ -286,7 +397,6 @@ export default defineComponent({
   position: sticky;
   top: 0;
   left: 0;
-  /* z-index: 10; */
   overflow-x: auto;
 }
 </style>
