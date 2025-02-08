@@ -160,6 +160,7 @@
             </div>
           </div>
         </div>
+        <q-separator v-if="this.model.length > 0" spaced />
         <apexchart
           v-if="
             this.selected.length > 0 &&
@@ -169,8 +170,21 @@
           "
           type="area"
           height="350"
-          :options="chartOptions"
-          :series="series"
+          :options="lastPriceChartOptions"
+          :series="lastPriceSeries"
+        />
+        <q-separator v-if="this.model.length > 0" spaced />
+        <apexchart
+          v-if="
+            this.selected.length > 0 &&
+            this.model.length > 0 &&
+            this.chartData != '' &&
+            this.chartData != undefined
+          "
+          type="area"
+          height="350"
+          :options="quantityChartOptions"
+          :series="quantitySeries"
         />
       </q-card>
     </q-page-container>
@@ -217,8 +231,36 @@ export default defineComponent({
       selectedColor: "", // Momentalno selektiranata boja
       selectedItem: "", // Momentalno selektiranata firma
       chartData: "",
-      series: [],
-      chartOptions: {
+      lastPriceSeries: [],
+      quantitySeries: [],
+      lastPriceChartOptions: {
+        data: {
+          series: [{}],
+          chartOptions: {
+            chart: {
+              height: 350,
+              type: "area",
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            stroke: {
+              curve: "smooth",
+            },
+            xaxis: {
+              type: "datetime",
+              categories: [],
+            },
+            tooltip: {
+              x: {
+                format: "dd/MM/yy HH:mm",
+              },
+            },
+            colors: [],
+          },
+        },
+      },
+      quantityChartOptions: {
         data: {
           series: [{}],
           chartOptions: {
@@ -363,6 +405,9 @@ export default defineComponent({
     },
 
     async getData() {
+      this.$q.loading.show({
+        message: "Getting data. Hang on...",
+      });
       const data = await httpUtils.getDataForComapnies(
         JSON.parse(JSON.stringify(this.selected)),
         this.date.from,
@@ -371,20 +416,56 @@ export default defineComponent({
 
       if (data) {
         this.chartData = Utils.transformDataForChart(data);
-        this.series = this.chartData.companies.map((item, index) => ({
-          name: item,
-          data: this.chartData.data[index],
-        }));
         const colors = this.getColors(this.chartData.companies);
-        this.chartOptions = {
-          ...this.chartOptions,
+        
+        // Posledna cena graf
+        this.lastPriceSeries = this.chartData.companies.map((item, index) => ({
+          name: item,
+          data: this.chartData.last_prices[index],
+        }));
+        this.lastPriceChartOptions = {
+          ...this.lastPriceChartOptions,
           xaxis: {
             categories: JSON.parse(JSON.stringify(this.chartData.dates)),
+            title: {
+              text: "Date",
+            },
           },
-          series: this.series,
+
+          yaxis: {
+            title: {
+              text: "Last Price (MKD)",
+            },
+          },
+          series: this.lastPriceSeries,
+          colors: colors
+        };
+
+        // Kolicina graf
+        this.quantitySeries = this.chartData.companies.map((item, index) => ({
+          name: item,
+          data: this.chartData.quantities[index],
+        }));
+        this.quantityChartOptions = {
+          ...this.quantityChartOptions,
+          xaxis: {
+            categories: JSON.parse(JSON.stringify(this.chartData.dates)),
+            title: {
+              text: "Date",
+            },
+          },
+
+          yaxis: {
+            title: {
+              text: "Quantity",
+            },
+          },
+          series: this.quantitySeries,
           colors: colors
         };
       }
+
+      this.$q.loading.hide()
     },
   },
 });
