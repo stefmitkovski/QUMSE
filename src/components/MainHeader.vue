@@ -24,12 +24,6 @@
               label="Download"
               class="q-mx-sm"
             />
-            <q-route-tab
-              name="calculator"
-              to="/calculator"
-              label="Calculator"
-              class="q-mx-sm"
-            />
           </q-tabs>
         </div>
       </q-toolbar>
