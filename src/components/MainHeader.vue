@@ -11,21 +11,31 @@
 
         <div class="q-mx-auto">
           <q-tabs v-model="tab" active-color="secondary" shrink>
-            <q-route-tab name="home" to="/" label="Home" class="q-mx-sm" />
+            <q-route-tab
+              name="home"
+              to="/"
+              :label="$t('Home')"
+              class="q-mx-sm"
+            />
             <q-route-tab
               name="analyse"
               to="/analyse"
-              label="Analyse"
+              :label="$t('Analyse')"
               class="q-mx-sm"
             />
             <q-route-tab
               name="download"
               to="/download"
-              label="Download"
+              :label="$t('Download')"
               class="q-mx-sm"
             />
           </q-tabs>
         </div>
+        <q-select
+          v-model="lang"
+          :options="langOptions"
+          @update:model-value="changeLanguage"
+        />
       </q-toolbar>
     </q-header>
 
@@ -37,7 +47,7 @@
       <q-tabs active-color="secondary" align="center">
         <q-route-tab name="home" to="/" label="Home" />
         <q-route-tab name="analyse" to="/analyse" label="Analyse" />
-        <q-route-tab name="calculator" to="/calculator" label="Calculator" />
+        <q-route-tab name="download" to="/download" label="Download" />
       </q-tabs>
     </q-header>
   </div>
@@ -56,8 +66,11 @@ export default defineComponent({
       leftDrawerOpen: false,
       showSearchBar: false,
       tab: this.$route.name,
+      lang: "MK",
+      langOptions: ["EN", "MK"],
     };
   },
+
   methods: {
     toggleLeftDrawer() {
       this.leftDrawerOpen = !this.leftDrawerOpen;
@@ -66,6 +79,9 @@ export default defineComponent({
       if (Platform.is.mobile) {
         this.showSearchBar = !this.showSearchBar;
       }
+    },
+    changeLanguage() {
+      this.$i18n.locale = this.lang;
     },
   },
   watch: {

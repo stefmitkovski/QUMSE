@@ -13,7 +13,7 @@
               input-debounce="0"
               multiple
               hide-selected
-              label="Search for a company"
+              :label="this.$t('SearchCompany')"
               :options="options"
               @filter="filter"
               style="width: 100%"
@@ -97,7 +97,7 @@
           :disable="selected.length === 0"
           @click="downloadData"
           color="primary"
-          label="Download"
+          :label="this.$t('Download')"
         />
       </div>
     </q-page-container>
@@ -123,62 +123,62 @@ export default defineComponent({
       selectedFields: [],
       columns: [
         {
-          name: "Sybmol",
-          label: "Symbol",
+          name: this.$t("Symbol"),
+          label: this.$t("Symbol"),
           field: "symbol",
           value: true,
         },
         {
-          name: "Avg. Price",
-          label: "Avg. Price",
+          name: this.$t("AvgPrice"),
+          label: this.$t("AvgPrice"),
           field: "average_price",
           value: true,
         },
         {
-          name: "Change",
-          label: "Change",
+          name: this.$t("Change"),
+          label: this.$t("Change"),
           field: "change",
           value: true,
         },
         {
-          name: "Last Price",
-          label: "Last Price",
+          name: this.$t("LastPrice"),
+          label: this.$t("LastPrice"),
           field: "last_price",
           value: true,
         },
         {
-          name: "Max",
-          label: "Max",
+          name: this.$t("Max"),
+          label: this.$t("Max"),
           field: "max",
           value: true,
         },
         {
-          name: "Min",
-          label: "Min",
+          name: this.$t("Min"),
+          label: this.$t("Min"),
           field: "min",
           value: true,
         },
         {
-          name: "Purchase Price",
-          label: "Purchase Price",
+          name: this.$t("PurchasePrice"),
+          label: this.$t("PurchasePrice"),
           field: "purchase_price",
           value: true,
         },
         {
-          name: "Quantity",
-          label: "Quantity",
+          name: this.$t("Quantity"),
+          label: this.$t("Quantity"),
           field: "quantity",
           value: true,
         },
         {
-          name: "Sale Price",
-          label: "Sale Price",
+          name: this.$t("SalePrice"),
+          label: this.$t("SalePrice"),
           field: "sale_price",
           value: true,
         },
         {
-          name: "Turnover In 1000 den",
-          label: "Turnover In 1000 den",
+          name: this.$t("TurnoverIn1000den"),
+          label: this.$t("TurnoverIn1000den"),
           field: "turnover_in_1000_den",
           value: true,
         },
@@ -231,19 +231,19 @@ export default defineComponent({
     selectFields() {
       this.$q
         .dialog({
-          title: "Select fields",
-          message: "Choose what fields you like to see:",
+          title: this.$t("SelectFields"),
+          message: this.$t("SelectFieldsLongMsg"),
           options: {
             type: "checkbox",
-            // inline: true
             model: this.selectedFields,
             items: this.columns.slice(1).map((item) => ({
               label: item.label,
               value: item.field,
             })),
           },
-          cancel: true,
+          cancel: this.$t("Cancel"),
           persistent: false,
+          ok: this.$t("OK"),
         })
         .onOk((data) => {
           this.selectedFields = data;
@@ -257,9 +257,14 @@ export default defineComponent({
               el.value = false;
             }
           });
+          // console.log(">>>> OK, received", data);
         })
-        .onCancel(() => {})
-        .onDismiss(() => {});
+        .onCancel(() => {
+          // console.log(">>>> Cancel");
+        })
+        .onDismiss(() => {
+          // console.log("I am triggered on both OK and Cancel");
+        });
     },
 
     removeSelected(val) {
@@ -278,13 +283,13 @@ export default defineComponent({
 
     async downloadData() {
       this.$q.loading.show({
-        message: "Getting data. Hang on...",
+        message: this.$t("LoadingMsg"),
       });
 
       if (!this.date.from || !this.date.to) {
         this.$q.notify({
           type: "negative",
-          message: "Forgot to set a date",
+          message: this.$t("ForgotDate"),
         });
         this.$q.loading.hide();
         return;
@@ -293,7 +298,7 @@ export default defineComponent({
       if (this.selectedFields.length === 0) {
         this.$q.notify({
           type: "negative",
-          message: "No field is selected",
+          message: this.$t("ForgotToSelectAField"),
         });
         this.$q.loading.hide();
         return;
@@ -309,7 +314,7 @@ export default defineComponent({
         if (!data || data.length === 0) {
           this.$q.notify({
             type: "negative",
-            message: "No data available for the selected range.",
+            message: this.$t("NoDataAvailable"),
           });
           this.$q.loading.hide();
           return;
@@ -323,12 +328,16 @@ export default defineComponent({
 
         // Prviot red
         const headerRow = [
-          "Date",
+          this.$t("Date"),
           ...companies.flatMap((company) =>
-            this.selectedFields.map((field) => `${company} ${field}`)
+            this.selectedFields
+              .map((field) => {
+                const column = this.columns.find((col) => col.field === field);
+                return column ? `${company} ${column.name}` : null;
+              })
+              .filter((item) => item !== null)
           ),
         ];
-
         const worksheetData = [headerRow];
 
         dates.forEach((date, index) => {
@@ -349,13 +358,13 @@ export default defineComponent({
 
         const ws = XLSX.utils.aoa_to_sheet(worksheetData);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Stock Data");
+        XLSX.utils.book_append_sheet(wb, ws, this.$t("StockData"));
 
-        XLSX.writeFile(wb, "StockData.xlsx");
+        XLSX.writeFile(wb, this.$t("StockData") + ".xlsx");
       } catch (error) {
         this.$q.notify({
           type: "negative",
-          message: "Error downloading data: " + error.message,
+          message: this.$t("ErrorGettingData") + error.message,
         });
       } finally {
         this.$q.loading.hide();

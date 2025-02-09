@@ -3,7 +3,7 @@
     <q-card flat bordered elevated>
       <q-table
         :title="title"
-        title-class="text-center"
+        title-class="text-weight-medium text-subtitle1"
         flat
         bordered
         :rows="rows"
@@ -42,21 +42,21 @@ export default defineComponent({
       columns: [
         {
           name: "symbol",
-          label: "Symbol",
+          label: this.$t("Symbol"),
           align: "center",
           field: "symbol",
           format: (val) => `${val}`,
         },
         {
           name: "change",
-          label: "Change",
+          label: this.$t("Change"),
           align: "center",
           field: "change",
           format: (val) => `${val}`,
         },
         {
           name: "last_price",
-          label: "Last Price",
+          label: this.$t("LastPrice"),
           align: "center",
           field: "last_price",
           format: (val) => `${val}`,
@@ -70,7 +70,7 @@ export default defineComponent({
       const columnToUpdate = this.columns.find((col) => col.name === "change");
       if (columnToUpdate) {
         columnToUpdate.name = "quantity";
-        columnToUpdate.label = "Quantity";
+        columnToUpdate.label = this.$t("Quantity");
         columnToUpdate.field = "quantity";
       }
     }

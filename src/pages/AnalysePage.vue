@@ -13,7 +13,7 @@
               input-debounce="0"
               multiple
               hide-selected
-              label="Search for a company"
+              :label="this.$t('SearchCompany')"
               :options="options"
               @filter="filter"
               @update:model-value="onSelected"
@@ -53,12 +53,12 @@
                   <q-list>
                     <q-item clickable @click="changeColorDialog(item)">
                       <q-item-section>
-                        <q-item-label>Change color</q-item-label>
+                        <q-item-label>{{ this.$t('ChangeColor') }}</q-item-label>
                       </q-item-section>
                     </q-item>
                     <q-item clickable @click="removeSelected(item)">
                       <q-item-section>
-                        <q-item-label>Delete</q-item-label>
+                        <q-item-label>{{ this.$t('Delete') }}</q-item-label>
                       </q-item-section>
                     </q-item>
                   </q-list>
@@ -118,7 +118,7 @@
           <q-separator v-if="this.model.length > 0" spaced />
           <div v-if="this.model.length > 0" class="row justify-center">
             <div class="column q-py-md">
-              <p class="text-center">Select Date Range:</p>
+              <p class="text-center">{{ this.$t('ChooseDateRange') }}</p>
 
               <!-- Kalendar -->
               <q-input
@@ -150,7 +150,7 @@
               <q-btn
                 @click="getData"
                 color="primary"
-                label="Submit"
+                :label="this.$t('Submit')"
                 :disable="
                   this.date.from.length == 0 ||
                   this.date.to.length == 0 ||
@@ -412,7 +412,7 @@ export default defineComponent({
 
     async getData() {
       this.$q.loading.show({
-        message: "Getting data. Hang on...",
+        message: this.$t('LoadingMsg'),
       });
       const data = await httpUtils.getDataForComapnies(
         JSON.parse(JSON.stringify(this.selected)),
@@ -434,13 +434,13 @@ export default defineComponent({
           xaxis: {
             categories: JSON.parse(JSON.stringify(this.chartData.dates)),
             title: {
-              text: "Date",
+              text: this.$t('Date'),
             },
           },
 
           yaxis: {
             title: {
-              text: "Last Price (MKD)",
+              text: this.$t('LastPrice')+"(MKD)",
             },
           },
           series: this.lastPriceSeries,
@@ -457,13 +457,13 @@ export default defineComponent({
           xaxis: {
             categories: JSON.parse(JSON.stringify(this.chartData.dates)),
             title: {
-              text: "Date",
+              text: this.$t('Date'),
             },
           },
 
           yaxis: {
             title: {
-              text: "Quantity",
+              text: this.$t('Quantity'),
             },
           },
           series: this.quantitySeries,

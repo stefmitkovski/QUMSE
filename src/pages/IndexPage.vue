@@ -5,17 +5,17 @@
       <div class="col-md-10 offset-md-1">
         <div class="row justify-between q-gutter-md">
           <div class="col-12 col-md-3">
-            <MostShares :rows="mostGainsReport" :title="'Most Gains'" />
-          </div>
-          <div class="col-12 col-md-3">
-            <MostShares :rows="mostLossesReport" :title="'Most Losses'" />
+            <MostShares :rows="mostGainsReport" :title="this.$t('MostGains')" />
           </div>
           <div class="col-12 col-md-3">
             <MostShares
               :rows="mostQunatityReport"
               :flag="true"
-              :title="'Most Quantity'"
+              :title="this.$t('BiggestQuantityChange')"
             />
+          </div>
+          <div class="col-12 col-md-3">
+            <MostShares :rows="mostLossesReport" :title="this.$t('MostLosses')" />
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@ export default defineComponent({
       );
     } else {
       this.$q.loading.show({
-        message: "Getting weekly data. Hang on...",
+        message: this.$t('LoadingMsg'),
       });
 
       this.weekReport = await httpUtils.getWeeklyReport();

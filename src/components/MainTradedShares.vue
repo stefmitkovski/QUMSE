@@ -5,7 +5,7 @@
         <div class="column q-pa-sm">
           <div class="row justify-center q-my-sm">
             <div class="text-center">
-              <b>Shares Traded on </b> ({{ date }})
+              <b>{{ $t("TradedOn") }} </b> ({{ date }})
               <q-btn icon="event" flat dense color="primary">
                 <q-popup-proxy
                   @before-show="updateDate"
@@ -19,13 +19,13 @@
                   >
                     <div class="row items-center justify-end q-gutter-sm">
                       <q-btn
-                        label="Cancel"
+                        :label="this.$t('Cancel')"
                         color="primary"
                         flat
                         v-close-popup
                       />
                       <q-btn
-                        label="OK"
+                        :label="this.$t('OK')"
                         color="primary"
                         flat
                         dense
@@ -53,7 +53,7 @@
                 outlined
                 dense
                 v-model="searchReportString"
-                placeholder="Search by symbol..."
+                :placeholder="$t('SearchCompany')"
                 @update:model-value="searchReport"
                 hide-underline
               >
@@ -100,7 +100,7 @@
                   )"
                   :key="col.name"
                 >
-                  {{ col.name }}
+                  <b>{{ col.name }}</b>
                 </th>
               </tr>
             </thead>
@@ -197,68 +197,68 @@ export default defineComponent({
   async created() {
     this.columns = [
       {
-        name: "Sybmol",
-        label: "Symbol",
+        name: this.$t("Symbol"),
+        label: this.$t("Symbol"),
         field: "symbol",
         value: true,
       },
       {
-        name: "Avg. Price",
-        label: "Avg. Price",
+        name: this.$t("AvgPrice"),
+        label: this.$t("AvgPrice"),
         field: "average_price",
         value: true,
       },
       {
-        name: "Change",
-        label: "Change",
+        name: this.$t("Change"),
+        label: this.$t("Change"),
         field: "change",
         value: true,
       },
       {
-        name: "Last Price",
-        label: "Last Price",
+        name: this.$t("LastPrice"),
+        label: this.$t("LastPrice"),
         field: "last_price",
         value: true,
       },
       {
-        name: "Max",
-        label: "Max",
+        name: this.$t("Max"),
+        label: this.$t("Max"),
         field: "max",
         value: true,
       },
       {
-        name: "Min",
-        label: "Min",
+        name: this.$t("Min"),
+        label: this.$t("Min"),
         field: "min",
         value: true,
       },
       {
-        name: "Purchase Price",
-        label: "Purchase Price",
+        name: this.$t("PurchasePrice"),
+        label: this.$t("PurchasePrice"),
         field: "purchase_price",
         value: true,
       },
       {
-        name: "Quantity",
-        label: "Quantity",
+        name: this.$t("Quantity"),
+        label: this.$t("Quantity"),
         field: "quantity",
         value: true,
       },
       {
-        name: "Sale Price",
-        label: "Sale Price",
+        name: this.$t("SalePrice"),
+        label: this.$t("SalePrice"),
         field: "sale_price",
         value: true,
       },
       {
-        name: "Turnover In 1000 den",
-        label: "Turnover In 1000 den",
+        name: this.$t("TurnoverIn1000den"),
+        label: this.$t("TurnoverIn1000den"),
         field: "turnover_in_1000_den",
         value: true,
       },
     ];
     this.$q.loading.show({
-      message: "Getting data. Hang on...",
+      message: this.$t('LoadingMsg'),
     });
     this.rows = await httpUtils.getLatestTradedStocks();
     this.backupRows = this.rows;
@@ -303,7 +303,9 @@ export default defineComponent({
           const searchLower = this.searchReportString.toLowerCase();
           return (
             item.symbol.toLowerCase().includes(searchLower) ||
-            cyrillicToLatin(item.name.toLowerCase(), "mkd").includes(searchLower) ||
+            cyrillicToLatin(item.name.toLowerCase(), "mkd").includes(
+              searchLower
+            ) ||
             item.name.toLowerCase().includes(searchLower)
           );
         });
@@ -318,19 +320,19 @@ export default defineComponent({
     selectFields() {
       this.$q
         .dialog({
-          title: "Select fields",
-          message: "Choose what fields you like to see:",
+          title: this.$t("SelectFields"),
+          message: this.$t("SelectFieldsLongMsg"),
           options: {
             type: "checkbox",
-            // inline: true
             model: this.selectedFields,
             items: this.columns.slice(1).map((item) => ({
               label: item.label,
               value: item.field,
             })),
           },
-          cancel: true,
+          cancel: this.$t("Cancel"),
           persistent: false,
+          ok: this.$t("OK"),
         })
         .onOk((data) => {
           this.selectedFields = data;
@@ -360,7 +362,7 @@ export default defineComponent({
 
     async chosenReportDate() {
       this.$q.loading.show({
-        message: "Getting data. Hang on...",
+        message: this.$t('LoadingMsg'),
       });
 
       const rows = await httpUtils.getSpecificReport(this.currentReportDate);
