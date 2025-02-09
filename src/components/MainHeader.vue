@@ -19,6 +19,12 @@
               class="q-mx-sm"
             />
             <q-route-tab
+              name="download"
+              to="/download"
+              label="Download"
+              class="q-mx-sm"
+            />
+            <q-route-tab
               name="calculator"
               to="/calculator"
               label="Calculator"

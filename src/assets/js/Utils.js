@@ -39,6 +39,40 @@ const Utils = {
     };
   },
 
+  transformDataForDownload(selected, data) {
+      const groupedData = {};
+      const dates = new Set();
+    
+      data.forEach((item) => {
+        const formattedDate = new Date(item.date.$date).toISOString().split("T")[0];
+        dates.add(formattedDate);
+    
+        if (!groupedData[item.symbol]) {
+          groupedData[item.symbol] = {};
+          selected.forEach((field) => {
+            groupedData[item.symbol][field] = [];
+          });
+        }
+    
+        selected.forEach((field) => {
+          groupedData[item.symbol][field].push(item[field] ?? 0);
+        });
+      });
+    
+      const formattedDates = Array.from(dates).sort();
+    
+      const result = {
+        companies: Object.keys(groupedData),
+        dates: formattedDates,
+      };
+    
+      selected.forEach((field) => {
+        result[field] = Object.keys(groupedData).map((symbol) => groupedData[symbol][field]);
+      });
+      console.log(result)
+      return result;
+  },
+
   hasValue(val) {
     if (val === undefined || val === "") {
       return true;
