@@ -361,6 +361,12 @@ export default defineComponent({
         this.model[index].showMenu = false;
         this.model.splice(index, 1);
       }
+
+      const selectedIndex = this.selected.indexOf(val.value);
+      if (selectedIndex !== -1) {
+        this.selected.splice(selectedIndex, 1);
+      }
+
     },
 
     changeColorDialog(val) {
