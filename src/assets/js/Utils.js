@@ -74,10 +74,10 @@ const Utils = {
   },
 
   hasValue(val) {
-    if (val === undefined || val === "") {
-      return true;
-    } else {
+    if (val === undefined || val === "" || val === null) {
       return false;
+    } else {
+      return true;
     }
   },
 };

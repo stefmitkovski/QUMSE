@@ -7,14 +7,13 @@
         flat
         bordered
         :rows="rows"
-        :columns="columns"
+        :columns="computedColumns"
         row-key="symbol"
         hide-bottom
       />
     </q-card>
   </q-page-container>
 </template>
-
 
 <script>
 import { defineComponent } from "vue";
@@ -37,9 +36,9 @@ export default defineComponent({
     },
   },
 
-  data() {
-    return {
-      columns: [
+  computed: {
+    computedColumns() {
+      const baseColumns = [
         {
           name: "symbol",
           label: this.$t("Symbol"),
@@ -61,19 +60,25 @@ export default defineComponent({
           field: "last_price",
           format: (val) => `${val}`,
         },
-      ],
-    };
-  },
+      ];
 
-  created() {
-    if (this.flag) {
-      const columnToUpdate = this.columns.find((col) => col.name === "change");
-      if (columnToUpdate) {
-        columnToUpdate.name = "quantity";
-        columnToUpdate.label = this.$t("Quantity");
-        columnToUpdate.field = "quantity";
+      if (this.flag) {
+        const updatedColumns = baseColumns.map((col) => {
+          if (col.name === "change") {
+            return {
+              ...col,
+              name: "quantity",
+              label: this.$t("Quantity"),
+              field: "quantity",
+            };
+          }
+          return col;
+        });
+        return updatedColumns;
       }
-    }
+
+      return baseColumns;
+    },
   },
 });
 </script>

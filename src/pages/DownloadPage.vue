@@ -373,3 +373,16 @@ export default defineComponent({
   },
 });
 </script>
+<style>
+.mobile-sticky-card {
+  max-width: 100vw;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  left: 0;
+  overflow-x: auto;
+}
+.q-page-container {
+  padding-top: 55px !important;
+}
+</style>

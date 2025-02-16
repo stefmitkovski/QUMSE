@@ -91,20 +91,22 @@
           :virtual-scroll-sticky-size-end="32"
           :items="rows"
         >
-          <template v-slot:before>
-            <thead class="thead-sticky sticky">
-              <tr>
-                <th
-                  v-for="col in columns.filter((column) =>
-                    this.selectedFields.includes(column.field)
-                  )"
-                  :key="col.name"
-                >
-                  <b>{{ col.name }}</b>
-                </th>
-              </tr>
-            </thead>
-          </template>
+        <template v-slot:before>
+          <thead
+            :class="$q.dark.isActive ? 'bg-dark text-white' : 'bg-light'"
+          >
+            <tr>
+              <th
+                v-for="col in columns.filter((column) =>
+                  selectedFields.includes(column.field)
+                )"
+                :key="col.field"
+              >
+                <b>{{ $t(col.label) }}</b>
+              </th>
+            </tr>
+          </thead>
+        </template>
           <template v-slot="{ item }">
             <tr>
               <td class="text-center">
@@ -194,71 +196,72 @@ export default defineComponent({
       available_reports: [],
     };
   },
+
   async created() {
     this.columns = [
       {
         name: this.$t("Symbol"),
-        label: this.$t("Symbol"),
+        label: "Symbol",
         field: "symbol",
         value: true,
       },
       {
         name: this.$t("AvgPrice"),
-        label: this.$t("AvgPrice"),
+        label: "AvgPrice",
         field: "average_price",
         value: true,
       },
       {
         name: this.$t("Change"),
-        label: this.$t("Change"),
+        label: "Change",
         field: "change",
         value: true,
       },
       {
         name: this.$t("LastPrice"),
-        label: this.$t("LastPrice"),
+        label: "LastPrice",
         field: "last_price",
         value: true,
       },
       {
         name: this.$t("Max"),
-        label: this.$t("Max"),
+        label: "Max",
         field: "max",
         value: true,
       },
       {
         name: this.$t("Min"),
-        label: this.$t("Min"),
+        label: "Min",
         field: "min",
         value: true,
       },
       {
         name: this.$t("PurchasePrice"),
-        label: this.$t("PurchasePrice"),
+        label: "PurchasePrice",
         field: "purchase_price",
         value: true,
       },
       {
         name: this.$t("Quantity"),
-        label: this.$t("Quantity"),
+        label: "Quantity",
         field: "quantity",
         value: true,
       },
       {
         name: this.$t("SalePrice"),
-        label: this.$t("SalePrice"),
+        label: "SalePrice",
         field: "sale_price",
         value: true,
       },
       {
         name: this.$t("TurnoverIn1000den"),
-        label: this.$t("TurnoverIn1000den"),
+        label: "TurnoverIn1000den",
         field: "turnover_in_1000_den",
         value: true,
       },
     ];
     this.$q.loading.show({
-      message: this.$t('LoadingMsg'),
+      message: this.$t("LoadingMsg"),
     });
     this.rows = await httpUtils.getLatestTradedStocks();
     this.backupRows = this.rows;
@@ -362,7 +365,7 @@ export default defineComponent({
 
     async chosenReportDate() {
       this.$q.loading.show({
-        message: this.$t('LoadingMsg'),
+        message: this.$t("LoadingMsg"),
       });
 
       const rows = await httpUtils.getSpecificReport(this.currentReportDate);

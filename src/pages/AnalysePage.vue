@@ -486,4 +486,7 @@ export default defineComponent({
   left: 0;
   overflow-x: auto;
 }
+.q-page-container {
+  padding-top: 55px !important;
+}
 </style>

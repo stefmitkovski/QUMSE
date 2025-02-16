@@ -31,17 +31,31 @@
             />
           </q-tabs>
         </div>
-        <q-select
-          v-model="lang"
-          :options="langOptions"
-          @update:model-value="changeLanguage"
+        <q-btn
+          @click="toggleDarkMode"
+          class="q-mx-sm"
+          flat
+          round
+          :icon="darkMode ? 'dark_mode' : 'light_mode'"
         />
+        <q-btn class="q-mx-sm" flat :label="lang" @click="changeLanguage" />
       </q-toolbar>
     </q-header>
 
     <q-header v-if="$q.platform.is.mobile" elevated>
       <q-toolbar>
+        <q-btn
+          @click="toggleDarkMode"
+          class="q-mx-sm"
+          flat
+          round
+          :icon="darkMode ? 'dark_mode' : 'light_mode'"
+        />
+        <q-space />
         <q-toolbar-title align="center"> QUMSE </q-toolbar-title>
+
+        <q-space />
+        <q-btn class="q-mx-sm" flat :label="lang" @click="changeLanguage" />
       </q-toolbar>
 
       <q-tabs active-color="secondary" align="center">
@@ -55,6 +69,7 @@
 
 <script>
 import { Platform } from "quasar";
+import Utils from "src/assets/js/Utils";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -66,9 +81,28 @@ export default defineComponent({
       leftDrawerOpen: false,
       showSearchBar: false,
       tab: this.$route.name,
-      lang: "MK",
-      langOptions: ["EN", "MK"],
+      lang: "",
+      darkMode: false,
     };
+  },
+
+  mounted() {
+    // Za lokalizacija
+    const lang = localStorage.getItem("lang");
+    if (Utils.hasValue(lang)) {
+      this.lang = lang;
+    } else {
+      this.lang = "MK";
+    }
+    this.$i18n.locale = this.lang;
+
+    // Za Dark Mode
+    const darkMode = localStorage.getItem("darkMode");
+    if (Utils.hasValue(darkMode)) {
+      console.log("Current dark mode state:", darkMode);
+      this.darkMode = darkMode === "true";
+      this.$q.dark.set(this.darkMode);
+    }
   },
 
   methods: {
@@ -81,7 +115,20 @@ export default defineComponent({
       }
     },
     changeLanguage() {
+      if (this.lang === "MK") {
+        this.lang = "EN";
+      } else {
+        this.lang = "MK";
+      }
+
       this.$i18n.locale = this.lang;
+      localStorage.setItem("lang", this.lang);
+    },
+
+    toggleDarkMode() {
+      this.darkMode = !this.darkMode;
+      this.$q.dark.set(this.darkMode);
+      localStorage.setItem("darkMode", this.darkMode.toString());
     },
   },
   watch: {
