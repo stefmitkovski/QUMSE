@@ -1,12 +1,47 @@
 <template>
   <div class="row">
     <q-page-container class="col-md-10 offset-md-1">
-      <q-card flat bordered elevated class="mobile-sticky-card">
+      <q-card
+        flat
+        bordered
+        elevated
+        class="mobile-sticky-card"
+        :class="{ 'bg-dark text-white': $q.dark.isActive }"
+      >
         <div class="column q-pa-sm">
           <div class="row justify-center q-my-sm">
             <div class="text-center">
-              <b>{{ $t("TradedOn") }} </b> ({{ date }})
-              <q-btn icon="event" flat dense color="primary">
+              <q-btn
+                @click="changeLiveMode"
+                icon="radio_button_checked"
+                flat
+                dense
+                color="primary"
+              />
+              <b v-show="!this.liveMode" class="q-px-sm text-subtitle1">{{ $t("TradedOn") }} ({{ date }})</b>
+              <b v-show="this.liveMode" class="q-px-sm text-subtitle1">
+                {{ $t("LiveTracking") }}</b
+              >
+              
+                <q-btn
+                  v-show="this.liveMode"
+                  @click="getLatestLiveInformation"
+                  icon="refresh"
+                  flat
+                  dense
+                  color="primary"
+                />
+
+                <p v-show="this.liveMode" class="text-subtitle2 text-grey-14">
+                {{ $t("LastUpdated") }}({{ this.lastLiveTimestamp }})
+              </p>
+              <q-btn
+                v-show="!this.liveMode"
+                icon="event"
+                flat
+                dense
+                color="primary"
+              >
                 <q-popup-proxy
                   @before-show="updateDate"
                   cover
@@ -46,6 +81,7 @@
               color="primary"
               icon="fa-solid fa-list-check"
               @click="selectFields"
+              v-show="!this.liveMode"
             />
 
             <div class="col">
@@ -56,6 +92,7 @@
                 :placeholder="$t('SearchCompany')"
                 @update:model-value="searchReport"
                 hide-underline
+                :class="{ 'bg-dark text-white': $q.dark.isActive }"
               >
                 <template v-slot:append>
                   <q-btn
@@ -91,26 +128,30 @@
           :virtual-scroll-sticky-size-end="32"
           :items="rows"
         >
-        <template v-slot:before>
-          <thead
-            :class="$q.dark.isActive ? 'bg-dark text-white' : 'bg-light'"
-          >
-            <tr>
-              <th
-                v-for="col in columns.filter((column) =>
-                  selectedFields.includes(column.field)
-                )"
-                :key="col.field"
-              >
-                <b>{{ $t(col.label) }}</b>
-              </th>
-            </tr>
-          </thead>
-        </template>
+          <template v-slot:before>
+            <thead
+              :class="$q.dark.isActive ? 'bg-dark text-white' : 'bg-light'"
+            >
+              <tr>
+                <th
+                  v-for="col in columns.filter((column) =>
+                    selectedFields.includes(column.field)
+                  )"
+                  :key="col.field"
+                >
+                  <b>{{ $t(col.label) }}</b>
+                </th>
+              </tr>
+            </thead>
+          </template>
           <template v-slot="{ item }">
             <tr>
               <td class="text-center">
-                <q-tooltip anchor="top middle" self="bottom middle">
+                <q-tooltip
+                  v-if="!this.liveMode"
+                  anchor="top middle"
+                  self="bottom middle"
+                >
                   {{ item.name }}
                 </q-tooltip>
                 {{ item.symbol }}
@@ -125,13 +166,21 @@
                 v-show="selectedFields.includes('change')"
                 class="text-center"
               >
-                {{ isNaN(item.change) ? 0 : item.change }}
+                {{
+                  liveMode ? item.change : isNaN(item.change) ? 0 : item.change
+                }}
               </td>
               <td
                 v-show="selectedFields.includes('last_price')"
                 class="text-center"
               >
-                {{ isNaN(item.last_price) ? 0 : item.last_price }}
+                {{
+                  liveMode
+                    ? item.last_price
+                    : isNaN(item.last_price)
+                      ? 0
+                      : item.last_price
+                }}
               </td>
               <td v-show="selectedFields.includes('max')" class="text-center">
                 {{ isNaN(item.max) ? 0 : item.max }}
@@ -178,11 +227,23 @@
 <script>
 import cyrillicToLatin from "cyrillic-romanization";
 import httpUtils from "src/assets/js/httpUtils";
+import Utils from "src/assets/js/Utils";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "MainTradedShares",
-  props: {},
+  props: {
+    value: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
+  watch: {
+    liveMode() {
+      this.getData();
+    },
+  },
 
   data() {
     return {
@@ -194,123 +255,145 @@ export default defineComponent({
       searchReportString: "",
       selectedFields: [],
       available_reports: [],
+      liveMode: true,
+      lastLiveTimestamp: "",
     };
   },
 
   async created() {
-    this.columns = [
-      {
-        name: this.$t("Symbol"),
-        label: "Symbol",
-        field: "symbol",
-        value: true,
-      },
-      {
-        name: this.$t("AvgPrice"),
-        label: "AvgPrice",
-        field: "average_price",
-        value: true,
-      },
-      {
-        name: this.$t("Change"),
-        label: "Change",
-        field: "change",
-        value: true,
-      },
-      {
-        name: this.$t("LastPrice"),
-        label: "LastPrice",
-        field: "last_price",
-        value: true,
-      },
-      {
-        name: this.$t("Max"),
-        label: "Max",
-        field: "max",
-        value: true,
-      },
-      {
-        name: this.$t("Min"),
-        label: "Min",
-        field: "min",
-        value: true,
-      },
-      {
-        name: this.$t("PurchasePrice"),
-        label: "PurchasePrice",
-        field: "purchase_price",
-        value: true,
-      },
-      {
-        name: this.$t("Quantity"),
-        label: "Quantity",
-        field: "quantity",
-        value: true,
-      },
-      {
-        name: this.$t("SalePrice"),
-        label: "SalePrice",
-        field: "sale_price",
-        value: true,
-      },
-      {
-        name: this.$t("TurnoverIn1000den"),
-        label: "TurnoverIn1000den",
-        field: "turnover_in_1000_den",
-        value: true,
-      },
-    ];
-    this.$q.loading.show({
-      message: this.$t("LoadingMsg"),
-    });
-    this.rows = await httpUtils.getLatestTradedStocks();
-    this.backupRows = this.rows;
-    this.date = this.rows[0].date["$date"].substring(0, 10).replace(/-/g, "/");
+    this.getTime();
+    this.getData();
+  },
 
-    if (this.$q.sessionStorage.getItem("selectedFields")) {
-      this.selectedFields = JSON.parse(
-        this.$q.sessionStorage.getItem("selectedFields")
-      );
-    } else {
-      this.selectedFields = this.columns
-        .map((item) => (item.value ? item.field : null))
-        .filter((field) => field !== null);
+  async changeLiveMode() {
+    this.liveMode = !this.liveMode;
+    this.$q.sessionStorage.setItem("liveMode", this.liveMode.toString());
+    await this.getData();
+  },
 
-      this.$q.sessionStorage.setItem(
-        "selectedFields",
-        JSON.stringify(this.selectedFields)
-      );
-    }
-
-    if (this.$q.sessionStorage.getItem("available_reports")) {
-      this.available_reports = JSON.parse(
-        this.$q.sessionStorage.getItem("available_reports")
-      );
-    } else {
-      this.available_reports = await httpUtils.getAllAvailableReports();
-
-      this.$q.sessionStorage.setItem(
-        "available_reports",
-        JSON.stringify(this.available_reports)
-      );
-    }
-    this.$q.loading.hide();
+  unmounted() {
+    this.$q.sessionStorage.setItem("liveMode", this.liveMode.toString());
   },
 
   methods: {
+    async getData() {
+      this.$q.loading.show({ message: this.$t("LoadingMsg") });
+
+      if (Utils.hasValue(this.$q.sessionStorage.getItem("liveMode")))
+        this.liveMode = this.$q.sessionStorage.getItem("liveMode") === "true";
+
+      this.columns = this.liveMode
+        ? [
+            { name: this.$t("Symbol"), label: "Symbol", field: "symbol" },
+            { name: this.$t("Change"), label: "Change", field: "change" },
+            {
+              name: this.$t("LastPrice"),
+              label: "LastPrice",
+              field: "last_price",
+            },
+          ]
+        : [
+            { name: this.$t("Symbol"), label: "Symbol", field: "symbol" },
+            {
+              name: this.$t("AvgPrice"),
+              label: "AvgPrice",
+              field: "average_price",
+            },
+            { name: this.$t("Change"), label: "Change", field: "change" },
+            {
+              name: this.$t("LastPrice"),
+              label: "LastPrice",
+              field: "last_price",
+            },
+            { name: this.$t("Max"), label: "Max", field: "max" },
+            { name: this.$t("Min"), label: "Min", field: "min" },
+            {
+              name: this.$t("PurchasePrice"),
+              label: "PurchasePrice",
+              field: "purchase_price",
+            },
+            { name: this.$t("Quantity"), label: "Quantity", field: "quantity" },
+            {
+              name: this.$t("SalePrice"),
+              label: "SalePrice",
+              field: "sale_price",
+            },
+            {
+              name: this.$t("TurnoverIn1000den"),
+              label: "TurnoverIn1000den",
+              field: "turnover_in_1000_den",
+            },
+          ];
+
+      this.rows = this.liveMode
+        ? await httpUtils.getLiveInformations()
+        : await httpUtils.getLatestTradedStocksReport();
+
+      if (this.rows && this.rows.length) {
+        this.backupRows = [...this.rows];
+
+        if (!this.liveMode) {
+          this.date =
+            this.rows[0]?.date?.["$date"]
+              ?.substring(0, 10)
+              .replace(/-/g, "/") || "";
+          this.available_reports = this.$q.sessionStorage.getItem(
+            "available_reports"
+          )
+            ? JSON.parse(this.$q.sessionStorage.getItem("available_reports"))
+            : await httpUtils.getAllAvailableReports();
+          this.$q.sessionStorage.setItem(
+            "available_reports",
+            JSON.stringify(this.available_reports)
+          );
+          this.selectedFields = this.$q.sessionStorage.getItem("selectedFields")
+            ? JSON.parse(this.$q.sessionStorage.getItem("selectedFields"))
+            : this.columns.map((item) => item.field);
+
+          this.$q.sessionStorage.setItem(
+            "selectedFields",
+            JSON.stringify(this.selectedFields)
+          );
+        } else {
+          this.selectedFields = ["symbol", "change", "last_price"];
+        }
+
+        this.$emit("show", true);
+      } else {
+        this.$emit("show", false);
+      }
+
+      this.$q.loading.hide();
+    },
+
+    getTime() {
+      const now = new Date();
+
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed
+      const year = now.getFullYear();
+
+      this.lastLiveTimestamp = `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+
+      this.lastLiveTimestamp;
+    },
+
     searchReport() {
       if (this.searchReportString.length === 0) {
         this.rows = [...this.backupRows];
       } else {
         this.rows = this.backupRows.filter((item) => {
           const searchLower = this.searchReportString.toLowerCase();
-          return (
-            item.symbol.toLowerCase().includes(searchLower) ||
-            cyrillicToLatin(item.name.toLowerCase(), "mkd").includes(
-              searchLower
-            ) ||
-            item.name.toLowerCase().includes(searchLower)
-          );
+          return this.liveMode
+            ? item.symbol.toLowerCase().includes(searchLower)
+            : item.symbol.toLowerCase().includes(searchLower) ||
+                cyrillicToLatin(item.name.toLowerCase(), "mkd").includes(
+                  searchLower
+                ) ||
+                item.name.toLowerCase().includes(searchLower);
         });
       }
     },
@@ -361,6 +444,17 @@ export default defineComponent({
 
     updateDate() {
       this.currentReportDate = this.date;
+    },
+
+    getLatestLiveInformation() {
+      this.getTime();
+      this.getData();
+    },
+
+    changeLiveMode() {
+      this.liveMode = !this.liveMode;
+      this.getData();
+      this.created();
     },
 
     async chosenReportDate() {

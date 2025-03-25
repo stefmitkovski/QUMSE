@@ -1,94 +1,80 @@
 <template>
-  <div class="row">
+  <div v-if="this.companies != false" class="row">
     <q-page-container class="col-12 col-md-10 offset-md-1">
-      <q-card flat bordered elevated class="mobile-sticky-card">
-        <div class="column q-pa-sm">
-          <div class="row justify-center">
-            <q-select
-              outlined
-              clearable
-              v-model="model"
-              fill-input
-              use-input
-              input-debounce="0"
-              multiple
-              hide-selected
-              :label="this.$t('SearchCompany')"
-              :options="options"
-              @filter="filter"
-              style="width: 100%"
-            >
-              <template v-slot:before>
-                <q-btn
-                  class="col-auto"
-                  flat
-                  color="primary"
-                  icon="fa-solid fa-list-check"
-                  @click="selectFields"
-                />
-              </template>
+      <q-card
+  flat
+  bordered
+  elevated
+  class="mobile-sticky-card"
+  :class="{ 'bg-dark text-white': $q.dark.isActive }"
+>
+  <div class="column q-pa-sm">
+    <div class="row justify-center">
+      <q-select
+        outlined
+        clearable
+        v-model="model"
+        fill-input
+        use-input
+        input-debounce="0"
+        multiple
+        hide-selected
+        :label="this.$t('SearchCompany')"
+        :options="options"
+        @filter="filter"
+        style="width: 100%"
+        :class="{ 'bg-dark text-white': $q.dark.isActive }"
+      >
+        <template v-slot:before>
+          <q-btn
+            class="col-auto"
+            flat
+            color="primary"
+            icon="fa-solid fa-list-check"
+            @click="selectFields"
+          />
+        </template>
 
-              <template v-slot:after>
-                <q-btn icon="event" flat dense color="primary">
-                  <q-popup-proxy
-                    cover
-                    transition-show="scale"
-                    transition-hide="scale"
-                  >
-                    <q-date v-model="date" mask="YYYY/MM/DD" range>
-                      <div class="row items-center justify-end">
-                        <q-btn
-                          v-close-popup
-                          label="Close"
-                          color="primary"
-                          flat
-                        />
-                      </div>
-                    </q-date>
-                  </q-popup-proxy>
-                </q-btn>
-              </template>
+        <template v-slot:after>
+          <q-btn icon="event" flat dense color="primary">
+            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+              <q-date v-model="date" mask="YYYY/MM/DD" range>
+                <div class="row items-center justify-end">
+                  <q-btn v-close-popup :label="this.$t('Close')" color="primary" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-btn>
+        </template>
 
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    No results found
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-          </div>
+        <template v-slot:no-option>
+          <q-item>
+            <q-item-section class="text-grey">No results found</q-item-section>
+          </q-item>
+        </template>
+      </q-select>
+    </div>
 
-          <div v-for="(item, index) in model" :key="index">
-            <q-separator spaced />
+    <div v-for="(item, index) in model" :key="index">
+      <q-separator spaced />
 
-            <q-item clickable>
-              <q-item-section avatar>
-                <q-checkbox
-                  keep-color
-                  v-model="selected"
-                  color="primary"
-                  :val="item.value"
-                />
-              </q-item-section>
+      <q-item clickable :class="{ 'bg-dark text-white': $q.dark.isActive }">
+        <q-item-section avatar>
+          <q-checkbox keep-color v-model="selected" color="primary" :val="item.value" />
+        </q-item-section>
 
-              <q-item-section @click="toggleCheckbox(item.value)">
-                {{ item.label }}
-              </q-item-section>
+        <q-item-section @click="toggleCheckbox(item.value)">
+          {{ item.label }}
+        </q-item-section>
 
-              <q-item-section side>
-                <q-btn
-                  flat
-                  round
-                  icon="close"
-                  color="primary"
-                  @click="removeSelected(item)"
-                />
-              </q-item-section>
-            </q-item>
-          </div>
-        </div>
-      </q-card>
+        <q-item-section side>
+          <q-btn flat round icon="close" color="primary" @click="removeSelected(item)" />
+        </q-item-section>
+      </q-item>
+    </div>
+  </div>
+</q-card>
+
       <div
         v-if="this.model.length > 0"
         class="row items-center justify-center q-py-md"
@@ -102,7 +88,17 @@
       </div>
     </q-page-container>
   </div>
-</template>
+  <div v-else 
+       class="q-pa-none q-mb-none flex flex-center"
+       :style="{'height': '100vh', 'background-color': $q.dark.isActive ? '#303030' : '#f5f5f5'}">
+    <div class="text-center">
+      <q-icon name="error" size="10em" :color="$q.dark.isActive ? 'white' : 'grey-5'" />
+      <div class="q-mt-md text-h5" :class="{'text-grey-6': !$q.dark.isActive, 'text-white': $q.dark.isActive}">
+        {{ $t('WrongIPAddress') }}
+      </div>
+    </div>
+  </div>
+  </template>
 
 <script>
 import cyrillicToLatin from "cyrillic-romanization";
@@ -303,7 +299,6 @@ export default defineComponent({
         this.$q.loading.hide();
         return;
       }
-
       try {
         const data = await httpUtils.getDataForComapnies(
           [...this.selected],

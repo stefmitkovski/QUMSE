@@ -6,7 +6,14 @@ export default {
   Home: "Home",
   Analyse: "Analyse",
   Download: "Download",
+  Light: "Light",
+  Dark: "Dark",
+  IP: "IP",
 
+  // Change IP Dialog
+  IP_Title: 'Change IP address',
+  IP_Body: 'Enter the IP address where the PyMSE server is located',
+  
   // Global
   SearchCompany: "Search for a company by name or symbol...",
   SelectFields: "Select Fields",
@@ -14,7 +21,10 @@ export default {
   Cancel: "Cancel",
   OK: "OK",
   Submit: "Submit",
+  Confirm: "Confirm",
   LoadingMsg: "Getting data. Hang on...",
+  LoadingSwitchingTabs: "Changing page, just a moment ...",
+  WrongIPAddress: "Wrong IP address",
 
   // Home Page
   TradedOn: "Traded on",
@@ -28,9 +38,11 @@ export default {
   Quantity: "Quantity",
   SalePrice: "Sale Price",
   TurnoverIn1000den: "Turnover In 1000 den",
-  MostGains: "Most Gains",
-  MostLosses: "Most Losses",
-  BiggestQuantityChange: "Biggest quantity change",
+  MostGains: "Biggest winners\n(last week)",
+  MostLosses: "Biggest lossers\n(last week)",
+  BiggestQuantity: "Biggest quantity\n(last week)",
+  LiveTracking: "Live Tracking",
+  LastUpdated: "Last Updated on ",
 
   // Analyse Page
   ChooseDateRange: "Choose Date Range:",

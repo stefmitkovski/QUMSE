@@ -6,6 +6,13 @@ export default {
   Home: "Дома",
   Analyse: "Анализа",
   Download: "Превземање",
+  Light: "Светло",
+  Dark: "Темно",
+  IP: "ИП",
+
+  // Change IP Dialog
+  IP_Title: 'Променете ја IP адресата',
+  IP_Body: 'Внесете ја IP адресата каде што се наоѓа серверот PyMSE',
 
   // Global
   SearchCompany: "Пребарајте компанија по име или симбол...",
@@ -14,7 +21,10 @@ export default {
   Cancel: "Откажи",
   OK: "Во Ред",
   Submit: "Поднесете",
+  Confirm: "Потврди",
   LoadingMsg: "Добивање податоци. Почекај...",
+  LoadingSwitchingTabs: "Промена страна, момент ...",
+  WrongIPAddress: "Погрешна ИП адреса",
 
   // Home Page
   TradedOn: "Тргувано на",
@@ -28,9 +38,11 @@ export default {
   Quantity: "Количина",
   SalePrice: "Продажна цена",
   TurnoverIn1000den: "Промет Во 1000 ден",
-  MostGains: "Најмногу добивки",
-  MostLosses: "Најмногу загуби",
-  BiggestQuantityChange: "Најголема промена(количината)",
+  MostGains: "Најголеми добитници\n(последната недела)",
+  MostLosses: "Најголеми губитници\n(последната недела)",
+  BiggestQuantity: "Најголема количина\n(последната недела)",
+  LiveTracking: "Во живо податоци",
+  LastUpdated: "Последно ажурирање на ",
 
   // Analyse Page
   ChooseDateRange: "Изберете Опсег(Датум):",

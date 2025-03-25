@@ -1,193 +1,170 @@
 <template>
-  <div class="row">
+  <div v-if ="this.companies != false" class="row">
     <q-page-container class="col-12 col-md-10 offset-md-1">
-      <q-card flat bordered elevated class="mobile-sticky-card">
-        <div class="column q-pa-sm">
-          <div class="row justify-center">
-            <q-select
-              outlined
-              clearable
-              v-model="model"
-              fill-input
-              use-input
-              input-debounce="0"
-              multiple
-              hide-selected
-              :label="this.$t('SearchCompany')"
-              :options="options"
-              @filter="filter"
-              @update:model-value="onSelected"
-              style="width: 100%"
-            >
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    No results found
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-          </div>
-          <div v-for="(item, index) in model" :key="index">
-            <q-separator spaced />
-            <q-item clickable>
-              <q-item-section avatar>
-                <q-checkbox
-                  keep-color
-                  v-model="selected"
-                  :color="item.color"
-                  :val="item.value"
-                />
-              </q-item-section>
-              <q-item-section @click="toggleCheckbox(item.value)">{{
-                item.label
-              }}</q-item-section>
-              <q-item-section side>
+      <q-card
+  flat
+  bordered
+  elevated
+  class="mobile-sticky-card"
+  :class="{ 'bg-dark text-white': $q.dark.isActive }"
+>
+  <div class="column q-pa-sm">
+    <div class="row justify-center">
+      <q-select
+        outlined
+        clearable
+        v-model="model"
+        fill-input
+        use-input
+        input-debounce="0"
+        multiple
+        hide-selected
+        :label="this.$t('SearchCompany')"
+        :options="options"
+        @filter="filter"
+        @update:model-value="onSelected"
+        style="width: 100%"
+        :class="{ 'bg-dark text-white': $q.dark.isActive }"
+      >
+        <template v-slot:no-option>
+          <q-item>
+            <q-item-section class="text-grey">No results found</q-item-section>
+          </q-item>
+        </template>
+      </q-select>
+    </div>
+
+    <div v-for="(item, index) in model" :key="index">
+      <q-separator spaced />
+      <q-item clickable>
+        <q-item-section avatar>
+          <q-checkbox keep-color v-model="selected" :color="item.color" :val="item.value" />
+        </q-item-section>
+        <q-item-section @click="toggleCheckbox(item.value)">
+          {{ item.label }}
+        </q-item-section>
+        <q-item-section side>
+          <q-btn flat round icon="more_vert" @click="toggleMenu(item.value)" />
+          <q-menu v-model="item.showMenu">
+            <q-list>
+              <q-item clickable @click="changeColorDialog(item)">
+                <q-item-section>
+                  <q-item-label>{{ this.$t('ChangeColor') }}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-item clickable @click="removeSelected(item)">
+                <q-item-section>
+                  <q-item-label>{{ this.$t('Delete') }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+
+          <q-dialog v-model="showColorDialog">
+            <q-card :class="{ 'bg-dark text-white': $q.dark.isActive }">
+              <q-card-section>
+                <div class="text-weight-regular text-center">
+                  Selected Color:
+                  <div :style="{ color: selectedColor, display: 'inline' }">
+                    {{ selectedColor.toUpperCase() }}
+                  </div>
+                </div>
+              </q-card-section>
+              <q-separator spaced />
+              <q-card-section>
+                <div class="row q-mx-md">
+                  <div class="col-2" v-for="(colour, index) in colours" :key="index">
+                    <q-btn
+                      square
+                      unelevated
+                      :color="colour"
+                      @click="changeColor(colour)"
+                      class="full-width q-pa-sm"
+                    />
+                  </div>
+                </div>
+              </q-card-section>
+              <q-separator spaced />
+              <q-card-actions align="right">
                 <q-btn
+                  color="primary"
                   flat
-                  round
-                  icon="more_vert"
-                  @click="toggleMenu(item.value)"
+                  :label="this.$t('Cancel')"
+                  @click="closeColorDialog"
                 />
-                <q-menu v-model="item.showMenu">
-                  <q-list>
-                    <q-item clickable @click="changeColorDialog(item)">
-                      <q-item-section>
-                        <q-item-label>{{ this.$t('ChangeColor') }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item clickable @click="removeSelected(item)">
-                      <q-item-section>
-                        <q-item-label>{{ this.$t('Delete') }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
+                <q-btn
+                  color="primary"
+                  flat
+                  :label="this.$t('Confirm')"
+                  @click="applyColorDialog"
+                />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
+        </q-item-section>
+      </q-item>
+    </div>
 
-                <q-dialog v-model="showColorDialog">
-                  <q-card>
-                    <q-card-section>
-                      <div class="text-weight-regular text-center">
-                        Selected Color:
-                        <div
-                          :style="{ color: selectedColor, display: 'inline' }"
-                        >
-                          {{ selectedColor.toUpperCase() }}
-                        </div>
-                      </div>
-                    </q-card-section>
-                    <q-separator spaced />
-
-                    <q-card-section>
-                      <div class="row q-mx-md">
-                        <div
-                          class="col-2"
-                          v-for="(colour, index) in colours"
-                          :key="index"
-                        >
-                          <q-btn
-                            square
-                            unelevated
-                            :color="colour"
-                            @click="changeColor(colour)"
-                            class="full-width q-pa-sm"
-                          />
-                        </div>
-                      </div>
-                    </q-card-section>
-                    <q-separator spaced />
-                    <q-card-actions align="right">
-                      <q-btn
-                        color="primary"
-                        flat
-                        label="Cancel"
-                        @click="closeColorDialog"
-                      />
-                      <q-btn
-                        color="primary"
-                        flat
-                        label="Confirm"
-                        @click="applyColorDialog"
-                      />
-                    </q-card-actions>
-                  </q-card>
-                </q-dialog>
-              </q-item-section>
-            </q-item>
-          </div>
-          <q-separator v-if="this.model.length > 0" spaced />
-          <div v-if="this.model.length > 0" class="row justify-center">
-            <div class="column q-py-md">
-              <p class="text-center">{{ this.$t('ChooseDateRange') }}</p>
-
-              <!-- Kalendar -->
-              <q-input
-                filled
-                :model-value="`${date.from} - ${date.to}`"
-                readonly
-              >
-                <template v-slot:append>
-                  <q-icon name="event" class="cursor-pointer">
-                    <q-popup-proxy
-                      cover
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <q-date v-model="date" mask="YYYY/MM/DD" range>
-                        <div class="row items-center justify-end">
-                          <q-btn
-                            v-close-popup
-                            label="Close"
-                            color="primary"
-                            flat
-                          />
-                        </div>
-                      </q-date>
-                    </q-popup-proxy>
-                  </q-icon>
-                </template>
-              </q-input>
-              <q-btn
-                @click="getData"
-                color="primary"
-                :label="this.$t('Submit')"
-                :disable="
-                  this.date.from.length == 0 ||
-                  this.date.to.length == 0 ||
-                  this.selected.length == 0
-                "
-              />
-            </div>
-          </div>
-        </div>
-        <q-separator v-if="this.model.length > 0" spaced />
-        <apexchart
-          v-if="
-            this.selected.length > 0 &&
-            this.model.length > 0 &&
-            this.chartData != '' &&
-            this.chartData != undefined
+    <q-separator v-if="this.model.length > 0" spaced />
+    <div v-if="this.model.length > 0" class="row justify-center">
+      <div class="column q-py-md">
+        <p class="text-center">{{ this.$t('ChooseDateRange') }}</p>
+        <q-input filled :model-value="`${date.from} - ${date.to}`" readonly>
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                <q-date v-model="date" mask="YYYY/MM/DD" range>
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup :label="this.$t('Close')" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+        <q-btn
+          @click="getData"
+          color="primary"
+          :label="this.$t('Submit')"
+          :disable="
+            this.date.from.length == 0 ||
+            this.date.to.length == 0 ||
+            this.selected.length == 0
           "
-          type="area"
-          height="350"
-          :options="lastPriceChartOptions"
-          :series="lastPriceSeries"
         />
-        <q-separator v-if="this.model.length > 0" spaced />
-        <apexchart
-          v-if="
-            this.selected.length > 0 &&
-            this.model.length > 0 &&
-            this.chartData != '' &&
-            this.chartData != undefined
-          "
-          type="area"
-          height="350"
-          :options="quantityChartOptions"
-          :series="quantitySeries"
-        />
-      </q-card>
+      </div>
+    </div>
+  </div>
+
+  <q-separator v-if="this.model.length > 0" spaced />
+  <apexchart
+    v-if="this.selected.length > 0 && this.model.length > 0 && this.chartData"
+    type="area"
+    height="350"
+    :options="lastPriceChartOptions"
+    :series="lastPriceSeries"
+  />
+  <q-separator v-if="this.model.length > 0" spaced />
+  <apexchart
+    v-if="this.selected.length > 0 && this.model.length > 0 && this.chartData"
+    type="area"
+    height="350"
+    :options="quantityChartOptions"
+    :series="quantitySeries"
+  />
+</q-card>
+
     </q-page-container>
+  </div>
+  <div v-else 
+       class="q-pa-none q-mb-none flex flex-center"
+       :style="{'height': '100vh', 'background-color': $q.dark.isActive ? '#303030' : '#f5f5f5'}">
+    <div class="text-center">
+      <q-icon name="error" size="10em" :color="$q.dark.isActive ? 'white' : 'grey-5'" />
+      <div class="q-mt-md text-h5" :class="{'text-grey-6': !$q.dark.isActive, 'text-white': $q.dark.isActive}">
+        {{ $t('WrongIPAddress') }}
+      </div>
+    </div>
   </div>
 </template>
 
