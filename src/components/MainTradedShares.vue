@@ -279,15 +279,15 @@ export default defineComponent({
   },
 
   mounted(){
-    this.intervalId = setInterval(() => {
+    this.interval = setInterval(() => {
       this.getTime();
       this.getData();
     }, 1 * 60 * 1000);
   },
 
   beforeUnmount(){
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
+    if (this.interval) {
+      clearInterval(this.interval);
     }
   },
 
