@@ -1,6 +1,16 @@
 <template>
-  <div class="row">
-    <q-page-container class="col-md-10 offset-md-1">
+  <div
+    :class="{
+      'row': !$q.platform.is.mobile,
+      'q-pa-none': $q.platform.is.mobile,
+    }"
+  >
+    <q-page-container
+      :class="{
+        'col-md-10 offset-md-1': !$q.platform.is.mobile,
+        'col-12 q-pa-none': $q.platform.is.mobile,
+      }"
+    >
       <q-card
         flat
         bordered
@@ -18,21 +28,23 @@
                 dense
                 color="primary"
               />
-              <b v-show="!this.liveMode" class="q-px-sm text-subtitle1">{{ $t("TradedOn") }} ({{ date }})</b>
+              <b v-show="!this.liveMode" class="q-px-sm text-subtitle1"
+                >{{ $t("TradedOn") }} ({{ date }})</b
+              >
               <b v-show="this.liveMode" class="q-px-sm text-subtitle1">
                 {{ $t("LiveTracking") }}</b
               >
-              
-                <q-btn
-                  v-show="this.liveMode"
-                  @click="getLatestLiveInformation"
-                  icon="refresh"
-                  flat
-                  dense
-                  color="primary"
-                />
 
-                <p v-show="this.liveMode" class="text-subtitle2 text-grey-14">
+              <q-btn
+                v-show="this.liveMode"
+                @click="getLatestLiveInformation"
+                icon="refresh"
+                flat
+                dense
+                color="primary"
+              />
+
+              <p v-show="this.liveMode" class="text-subtitle2 text-grey-14">
                 {{ $t("LastUpdated") }}({{ this.lastLiveTimestamp }})
               </p>
               <q-btn
@@ -257,12 +269,26 @@ export default defineComponent({
       available_reports: [],
       liveMode: true,
       lastLiveTimestamp: "",
+      interval: null
     };
   },
 
   async created() {
     this.getTime();
     this.getData();
+  },
+
+  mounted(){
+    this.intervalId = setInterval(() => {
+      this.getTime();
+      this.getData();
+    }, 1 * 60 * 1000);
+  },
+
+  beforeUnmount(){
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   },
 
   async changeLiveMode() {

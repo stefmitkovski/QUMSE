@@ -1,7 +1,7 @@
 import axios from "axios";
 import Utils from "./Utils";
 
-const URL = "http://localhost:5000";
+// const URL = "http://localhost:5000";
 const IP = "localhost";
 
 const httpUtils = {
@@ -12,7 +12,7 @@ const httpUtils = {
     }else{
       this.URL = val
     }
-    console.log("URL: " + URL)
+    console.log("URL: " + this.URL)
   },
 
   getIPAddress(){
@@ -47,6 +47,19 @@ const httpUtils = {
       try{
         const path = this.URL+"/api/reports/search"
         const body = { "from": date, "to": date, }
+        const options = {method: 'POST', data: body, url:path, timeout: 5000}
+        const {data} = await axios.request(options)
+        return JSON.parse(data)
+      }catch(error){
+        console.error('getSpecificReport(Error fetching data):', error);
+        return false
+      }
+    },
+
+    async getDataForComapnies(symbol, from, to){
+      try{
+        const path = this.URL+"/api/reports/search"
+        const body = { "symbol":symbol, "from": from, "to": to }
         const options = {method: 'POST', data: body, url:path, timeout: 5000}
         const {data} = await axios.request(options)
         return JSON.parse(data)

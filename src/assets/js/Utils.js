@@ -5,6 +5,7 @@ const Utils = {
     const dates = new Set();
 
     data.forEach((item) => {
+      console.log("GRAPH", item)
       const formattedDate = new Date(item.date.$date)
         .toISOString()
         .split("T")[0];
@@ -44,6 +45,7 @@ const Utils = {
     const dates = new Set();
 
     data.forEach((item) => {
+      console.log("DOWNLOAD: ", item)
       const formattedDate = new Date(item.date.$date)
         .toISOString()
         .split("T")[0];
